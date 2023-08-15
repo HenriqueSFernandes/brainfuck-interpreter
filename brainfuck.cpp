@@ -15,3 +15,37 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 // For any further questions or inquiries, please contact henriquesardofernandes@gmail.com
+
+#include <algorithm>
+#include <vector>
+#include <iostream>
+
+using namespace std;
+
+void remove_unwanted(string &source_code)
+{
+    vector<char> valid_chars = {'[', ']', '<', '>', '+', '-', '.', ','};
+    string result;
+
+    for (char c : source_code)
+    {
+        if (find(valid_chars.begin(), valid_chars.end(), c) != valid_chars.end())
+        {
+            result += c;
+        }
+    }
+    source_code = result;
+}
+
+string brainfuck_to_c(string source_code)
+{
+    string result;
+    return result;
+}
+
+int main()
+{
+    string s = "[a]sdfg[+sdg+gdf+a]";
+    remove_unwanted(s);
+    cout << s << endl;
+}
