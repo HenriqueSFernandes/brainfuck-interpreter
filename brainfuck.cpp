@@ -23,7 +23,7 @@
 
 using namespace std;
 
-string remove_unwanted(const string &source_code)
+string removeUnwantedChars(const string &source_code)
 {
     vector<char> valid_chars = {'[', ']', '<', '>', '+', '-', '.', ','};
     string result;
@@ -32,7 +32,7 @@ string remove_unwanted(const string &source_code)
     {
         if (find(valid_chars.begin(), valid_chars.end(), c) != valid_chars.end())
         {
-            result += c; // if c is a valid char, add it to the result
+            result += c; // If c is a valid char, add it to the result
         }
     }
     return result;
@@ -61,19 +61,74 @@ bool hasUnmatchedBrackets(const string &source_code)
     return !bracketStack.empty(); // Unmatched opening bracket
 }
 
-string brainfuck_to_c(string source_code)
+string removeEmptyBrackets(const string &source_code)
+{
+    // Recursively search for empty brackets and remove them
+    string result = source_code;
+    size_t pos1 = result.find("[]");
+    size_t pos2 = result.find("<>");
+    size_t pos3 = result.find("><");
+
+    if (pos1 != string::npos)
+    {
+        result.erase(pos1, 2);
+    }
+    else if (pos2 != string::npos)
+    {
+        result.erase(pos2, 2);
+    }
+    else if (pos3 != string::npos)
+    {
+        result.erase(pos3, 2);
+    }
+    else
+    {
+        return result;
+    }
+    return removeEmptyBrackets(result);
+}
+
+string removeRedundantOperations(const string &source_code)
 {
     string result;
-    result = remove_unwanted(source_code);
+    int count = 0;
+    for (char c : source_code)
+    {
+        if (c == '+')
+        {
+            count++;
+        }
+        else if (c == '-')
+        {
+            count--;
+        }
+        else
+        {
+            result.append(abs(count), count > 0 ? '+' : '-');
+            result += c;
+            count = 0;
+        }
+    }
+    result.append(abs(count), count > 0 ? '+' : '-');
+
+    return result;
+}
+
+string brainfuckToC(string source_code)
+{
+    string result;
+    result = removeUnwantedChars(source_code);
     if (hasUnmatchedBrackets(result))
     {
         return "Unmatched brackets";
     }
+    result = removeEmptyBrackets(result);
+    result = removeRedundantOperations(result);
     return result;
 }
 
 int main()
 {
-    string s = "+[>[+]-]";
-    cout << brainfuck_to_c(s) << endl;
+    string s = "<+><>[][<->--><]";
+    cout << brainfuckToC(s) << endl;
 }
