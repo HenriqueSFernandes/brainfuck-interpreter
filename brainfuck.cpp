@@ -19,10 +19,11 @@
 #include <algorithm>
 #include <vector>
 #include <iostream>
+#include <stack>
 
 using namespace std;
 
-string remove_unwanted(string source_code)
+string remove_unwanted(const string &source_code)
 {
     vector<char> valid_chars = {'[', ']', '<', '>', '+', '-', '.', ','};
     string result;
@@ -31,21 +32,48 @@ string remove_unwanted(string source_code)
     {
         if (find(valid_chars.begin(), valid_chars.end(), c) != valid_chars.end())
         {
-            result += c;
+            result += c; // if c is a valid char, add it to the result
         }
     }
     return result;
+}
+
+bool hasUnmatchedBrackets(const string &source_code)
+{
+    stack<char> bracketStack;
+
+    for (char c : source_code)
+    {
+        if (c == '[')
+        {
+            bracketStack.push(c);
+        }
+        else if (c == ']')
+        {
+            if (bracketStack.empty() || bracketStack.top() != '[')
+            {
+                return true; // Unmatched closing bracket
+            }
+            bracketStack.pop();
+        }
+    }
+
+    return !bracketStack.empty(); // Unmatched opening bracket
 }
 
 string brainfuck_to_c(string source_code)
 {
     string result;
     result = remove_unwanted(source_code);
+    if (hasUnmatchedBrackets(result))
+    {
+        return "Unmatched brackets";
+    }
     return result;
 }
 
 int main()
 {
-    string s = "[a]sdfg[+sdg+gdf+a]";
+    string s = "+[>[+]-]";
     cout << brainfuck_to_c(s) << endl;
 }
