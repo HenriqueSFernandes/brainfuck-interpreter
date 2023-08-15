@@ -22,7 +22,7 @@
 
 using namespace std;
 
-void remove_unwanted(string &source_code)
+string remove_unwanted(string source_code)
 {
     vector<char> valid_chars = {'[', ']', '<', '>', '+', '-', '.', ','};
     string result;
@@ -34,18 +34,18 @@ void remove_unwanted(string &source_code)
             result += c;
         }
     }
-    source_code = result;
+    return result;
 }
 
 string brainfuck_to_c(string source_code)
 {
     string result;
+    result = remove_unwanted(source_code);
     return result;
 }
 
 int main()
 {
     string s = "[a]sdfg[+sdg+gdf+a]";
-    remove_unwanted(s);
-    cout << s << endl;
+    cout << brainfuck_to_c(s) << endl;
 }
