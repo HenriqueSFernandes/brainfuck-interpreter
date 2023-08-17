@@ -114,7 +114,7 @@ string removeRedundantOperations(const string &source_code)
     return result;
 }
 
-string brainfuckToC(string source_code)
+string filterSourceCode(string source_code)
 {
     string result;
     result = removeUnwantedChars(source_code);
@@ -127,8 +127,63 @@ string brainfuckToC(string source_code)
     return result;
 }
 
+void handleOperations(char operation, uint8_t *&p)
+{
+    switch (operation)
+    {
+    case '+':
+        ++(*p);
+        break;
+    case '-':
+        --(*p);
+        break;
+    case '>':
+        p++;
+        break;
+    case '<':
+        p--;
+        break;
+    }
+}
+
+void handleIO(char operation, uint8_t *&p)
+{
+    if (operation == '.')
+    {
+        cout << *p;
+    }
+    else
+    {
+        cin >> *p;
+    }
+}
+
+void executeSourceCode(string source_code)
+{
+    uint8_t data[30000] = {0};
+    uint8_t *p = &data[0];
+    for (char c : source_code)
+    {
+        if (c == '[' || c == ']')
+        {
+            continue;
+        }
+        else if (c == '.' || c == ',')
+        {
+            handleIO(c, p);
+        }
+        else
+        {
+            handleOperations(c, p);
+        }
+    }
+    return;
+}
+
 int main()
 {
-    string s = "<+><>[][<->--><]";
-    cout << brainfuckToC(s) << endl;
+    string s = "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++.";
+    cout << filterSourceCode(s) << endl;
+    executeSourceCode(s);
+    cout << endl;
 }
