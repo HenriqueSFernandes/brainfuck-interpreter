@@ -120,7 +120,8 @@ string filterSourceCode(string source_code)
     result = removeUnwantedChars(source_code);
     if (hasUnmatchedBrackets(result))
     {
-        return "Unmatched brackets";
+        cout << "Error: unmatched brackets!\n";
+        exit(1);
     }
     result = removeEmptyBrackets(result);
     result = removeRedundantOperations(result);
@@ -182,8 +183,8 @@ void executeSourceCode(string source_code)
 
 int main()
 {
-    string s = "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++.";
-    cout << filterSourceCode(s) << endl;
+    string s = "+++++++++[++++++++++++++++++++++++++++++++++++++++++++++++++++++++.>++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++.";
+    filterSourceCode(s);
     executeSourceCode(s);
     cout << endl;
 }
