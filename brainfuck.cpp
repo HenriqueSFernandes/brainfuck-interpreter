@@ -1,5 +1,6 @@
-// Brainfuck to c++ source-to-source translator
-// Copyright (C) 2023  Henrique Fernandes
+/// @file
+/// @author Henrique Fernandes <henriquesardofernandes@gmail.com>
+/// @version 1.0
 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -14,16 +15,25 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+// Copyright (C) 2023  Henrique Fernandes
 // For any further questions or inquiries, please contact henriquesardofernandes@gmail.com
+
+/// @section DESCRIPTION
+
+// This C++ program parses and executes Brainfuck code, providing an environment to run and interpret Brainfuck programs
 
 #include <algorithm>
 #include <vector>
 #include <iostream>
 #include <stack>
+#include <string>
+#include <unordered_map>
 
 using namespace std;
 
-string removeUnwantedChars(const string &source_code)
+/// @brief Removes any invalid characters
+/// @param source_code Source code
+void removeUnwantedChars(string &source_code)
 {
     vector<char> valid_chars = {'[', ']', '<', '>', '+', '-', '.', ','};
     string result;
@@ -35,35 +45,50 @@ string removeUnwantedChars(const string &source_code)
             result += c; // If c is a valid char, add it to the result
         }
     }
-    return result;
+    source_code = result;
 }
 
-bool hasUnmatchedBrackets(const string &source_code)
+/// @brief Detects and stores matching bracket pairs in source_code while handling errors for unmatched brackets using a stack and a map
+/// @param source_code Source code
+/// @param bracketPairs Unordered map used to store the bracket pairs
+void matchBrackets(const string &source_code, unordered_map<int, int> &bracketPairs)
 {
-    stack<char> bracketStack;
+    stack<int> bracketStack;
 
-    for (char c : source_code)
+    for (int i = 0; i < (int)source_code.length(); i++)
     {
-        if (c == '[')
+        if (source_code[i] == '[')
         {
-            bracketStack.push(c);
+            bracketStack.push(i);
         }
-        else if (c == ']')
+        else if (source_code[i] == ']')
         {
-            if (bracketStack.empty() || bracketStack.top() != '[')
+            if (bracketStack.empty())
             {
-                return true; // Unmatched closing bracket
+                cout << "Error: unmatched closing bracket\n";
+                exit(1);
             }
-            bracketStack.pop();
+            else
+            {
+                int openBracketIndex = bracketStack.top();
+                bracketStack.pop();
+                bracketPairs[openBracketIndex] = i; // Store pair and its reverse
+                bracketPairs[i] = openBracketIndex;
+            }
         }
     }
-
-    return !bracketStack.empty(); // Unmatched opening bracket
+    if (!bracketStack.empty())
+    {
+        cout << "Error: unmatched opening bracket\n";
+        exit(1);
+    }
 }
 
+/// @brief Recursively search for empty brackets (angled and squared) and remove them
+/// @param source_code Source code
+/// @return String containing the source code without empty brackets
 string removeEmptyBrackets(const string &source_code)
 {
-    // Recursively search for empty brackets and remove them
     string result = source_code;
     size_t pos1 = result.find("[]");
     size_t pos2 = result.find("<>");
@@ -88,7 +113,9 @@ string removeEmptyBrackets(const string &source_code)
     return removeEmptyBrackets(result);
 }
 
-string removeRedundantOperations(const string &source_code)
+/// @brief Removes redundant +/- operations
+/// @param source_code Source code
+void removeRedundantOperations(string &source_code)
 {
     string result;
     int count = 0;
@@ -111,23 +138,12 @@ string removeRedundantOperations(const string &source_code)
     }
     result.append(abs(count), count > 0 ? '+' : '-');
 
-    return result;
+    source_code = result;
 }
 
-string filterSourceCode(string source_code)
-{
-    string result;
-    result = removeUnwantedChars(source_code);
-    if (hasUnmatchedBrackets(result))
-    {
-        cout << "Error: unmatched brackets!\n";
-        exit(1);
-    }
-    result = removeEmptyBrackets(result);
-    result = removeRedundantOperations(result);
-    return result;
-}
-
+/// @brief Handles +/-/</> operations
+/// @param operation Character representing the operation
+/// @param p Pointer to the current memory cell
 void handleOperations(char operation, uint8_t *&p)
 {
     switch (operation)
@@ -147,6 +163,9 @@ void handleOperations(char operation, uint8_t *&p)
     }
 }
 
+/// @brief Handles input/output operations
+/// @param operation Character representing the operation
+/// @param p Pointer to the current memory cell
 void handleIO(char operation, uint8_t *&p)
 {
     if (operation == '.')
@@ -159,8 +178,21 @@ void handleIO(char operation, uint8_t *&p)
     }
 }
 
+/// @brief Filters and executes the source code
+/// @param source_code Source code
 void executeSourceCode(string source_code)
 {
+    cout << "Original code: " << source_code << endl;
+    removeUnwantedChars(source_code);
+    source_code = removeEmptyBrackets(source_code);
+    removeRedundantOperations(source_code);
+    cout << "Filtered code: " << source_code << endl;
+    unordered_map<int, int> bracketPairs;
+    matchBrackets(source_code, bracketPairs);
+    for (auto i : bracketPairs)
+    {
+        cout << "found pair from " << i.first << " to " << i.second << endl;
+    }
     uint8_t data[30000] = {0};
     uint8_t *p = &data[0];
     for (char c : source_code)
@@ -183,8 +215,8 @@ void executeSourceCode(string source_code)
 
 int main()
 {
-    string s = "+++++++++[++++++++++++++++++++++++++++++++++++++++++++++++++++++++.>++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++.";
-    filterSourceCode(s);
+    // string s = "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++.>++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++.";
+    string s = "+[++-]>> <>";
     executeSourceCode(s);
     cout << endl;
 }
