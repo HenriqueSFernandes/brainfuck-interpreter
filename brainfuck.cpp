@@ -189,25 +189,42 @@ void executeSourceCode(string source_code)
     cout << "Filtered code: " << source_code << endl;
     unordered_map<int, int> bracketPairs;
     matchBrackets(source_code, bracketPairs);
-    for (auto i : bracketPairs)
-    {
-        cout << "found pair from " << i.first << " to " << i.second << endl;
-    }
+
     uint8_t data[30000] = {0};
     uint8_t *p = &data[0];
-    for (char c : source_code)
+    unordered_map<int, int> loopExecutionCounters;
+    int loopExecutionThreshold = 1000;
+
+    for (int instructionIndex = 0; instructionIndex < (int)source_code.length(); instructionIndex++)
     {
-        if (c == '[' || c == ']')
+        char operation = source_code[instructionIndex];
+        if (operation == '[' && *p == 0)
         {
-            continue;
+            loopExecutionCounters[instructionIndex]++;
+            if (loopExecutionCounters[instructionIndex] > 1000)
+            {
+                cout << "Potential infinite loop detected. Loop executed more than the current threshold (" << loopExecutionThreshold << "), do you wish do increase the threshold and continue with the execution? (y/n)\n";
+                char anwser;
+                cin >> anwser;
+                if (anwser != 'y')
+                {
+                    exit(1);
+                }
+                loopExecutionThreshold *= 2;
+            }
+            instructionIndex = bracketPairs[instructionIndex];
         }
-        else if (c == '.' || c == ',')
+        else if (operation == ']' && *p != 0)
         {
-            handleIO(c, p);
+            instructionIndex = bracketPairs[instructionIndex];
+        }
+        else if (operation == '.' || operation == ',')
+        {
+            handleIO(operation, p);
         }
         else
         {
-            handleOperations(c, p);
+            handleOperations(operation, p);
         }
     }
     return;
@@ -215,8 +232,8 @@ void executeSourceCode(string source_code)
 
 int main()
 {
-    // string s = "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++.>++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++.";
-    string s = "+[++-]>> <>";
+    string s = "--<-<<+[+[<+>--->->->-<<<]>]<<--.<++++++.<<-..<<.<+.>>.>>.<<<.+++.>>.>>-.<<<+.";
+    // string s = "+[++-]>> <>";
     executeSourceCode(s);
     cout << endl;
 }
