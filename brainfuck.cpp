@@ -144,7 +144,8 @@ void removeRedundantOperations(string &source_code)
 /// @brief Handles +/-/</> operations
 /// @param operation Character representing the operation
 /// @param p Pointer to the current memory cell
-void handleOperations(char operation, uint8_t *&p)
+/// @param data Array of all memory cells
+void handleOperations(char operation, uint8_t *&p, uint8_t data[])
 {
     switch (operation)
     {
@@ -155,10 +156,24 @@ void handleOperations(char operation, uint8_t *&p)
         --(*p);
         break;
     case '>':
-        p++;
+        if (p == &data[29999])
+        {
+            p = &data[0];
+        }
+        else
+        {
+            p++;
+        }
         break;
     case '<':
-        p--;
+        if (p == &data[0])
+        {
+            p = &data[29999];
+        }
+        else
+        {
+            p--;
+        }
         break;
     }
 }
@@ -224,7 +239,7 @@ void executeSourceCode(string source_code)
         }
         else
         {
-            handleOperations(operation, p);
+            handleOperations(operation, p, data);
         }
     }
     return;
@@ -232,8 +247,7 @@ void executeSourceCode(string source_code)
 
 int main()
 {
-    string s = "--<-<<+[+[<+>--->->->-<<<]>]<<--.<++++++.<<-..<<.<+.>>.>>.<<<.+++.>>.>>-.<<<+.";
-    // string s = "+[++-]>> <>";
+    string s = "<<++++++++[>++++++<-]>.>++++++++[>++++++<-]>+.";
     executeSourceCode(s);
     cout << endl;
 }
