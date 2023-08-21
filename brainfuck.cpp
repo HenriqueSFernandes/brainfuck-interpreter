@@ -28,6 +28,8 @@
 #include <stack>
 #include <string>
 #include <unordered_map>
+#include <fstream>
+#include <unistd.h>
 
 using namespace std;
 
@@ -245,9 +247,41 @@ void executeSourceCode(string source_code)
     return;
 }
 
-int main()
+int main(int argc, char **argv)
 {
-    string s = "<<++++++++[>++++++<-]>.>++++++++[>++++++<-]>+.";
-    executeSourceCode(s);
-    cout << endl;
+    if (argc == 3 && (argv[1] == string("-c") || argv[1] == string("--code")))
+    {
+        cout << "Running argument as source code.\n";
+        string source_code = argv[2];
+        executeSourceCode(source_code);
+        cout << endl;
+    }
+
+    else if (argc == 3 && (argv[1] == string("-i") || argv[1] == string("--input")))
+    {
+        string path = argv[2];
+        cout << "Running " << argv[2] << ".\n";
+        ifstream input_file(path);
+        string source_code;
+        string s;
+        if (!input_file.is_open())
+        {
+            cerr << "Error opening file: " << path << endl;
+            return 1; // Return an error code
+        }
+        while (!input_file.eof())
+        {
+            getline(input_file, s);
+            source_code += s;
+        }
+        executeSourceCode(source_code);
+        cout << endl;
+    }
+
+    else
+    {
+        cout << "Usage: brainfuck --option <argument>\n\nOptions:\n";
+        cout << "-c <code>, --code <code>\t\tRun argument as code\n";
+        cout << "-i <file>, --input <file>\t\tRun file\n";
+    }
 }
