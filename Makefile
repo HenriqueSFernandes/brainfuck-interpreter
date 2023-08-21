@@ -2,7 +2,7 @@
 CXX=g++
 
 # Enforce C++ 2011 as the language standard
-CXXFLAGS=-std=c++11 -pedantic
+CXXFLAGS=-std=c++20 -pedantic
 
 # Enable all standard warnings, uninitialized variable warnings, 
 # and treat all warnings as errors

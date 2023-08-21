@@ -30,8 +30,10 @@
 #include <unordered_map>
 #include <fstream>
 #include <unistd.h>
+#include <filesystem>
 
 using namespace std;
+namespace fs = filesystem;
 
 /// @brief Removes any invalid characters
 /// @param source_code Source code
@@ -259,21 +261,21 @@ int main(int argc, char **argv)
 
     else if (argc == 3 && (argv[1] == string("-i") || argv[1] == string("--input")))
     {
-        string path = argv[2];
-        cout << "Running " << argv[2] << ".\n";
-        ifstream input_file(path);
+        fs::path filePath = argv[2];
+        if (!fs::exists(filePath))
+        {
+            cout << "File not found: " << filePath << endl;
+            return 1;
+        }
+
+        ifstream file(filePath);
+        if (!file.is_open())
+        {
+            cout << "Error opening file: " << filePath << endl;
+            return 1;
+        }
         string source_code;
-        string s;
-        if (!input_file.is_open())
-        {
-            cerr << "Error opening file: " << path << endl;
-            return 1; // Return an error code
-        }
-        while (!input_file.eof())
-        {
-            getline(input_file, s);
-            source_code += s;
-        }
+        getline(file, source_code, '\0');
         executeSourceCode(source_code);
         cout << endl;
     }
