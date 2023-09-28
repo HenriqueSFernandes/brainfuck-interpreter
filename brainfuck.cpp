@@ -223,9 +223,9 @@ void executeSourceCode(string source_code)
             if (loopExecutionCounters[instructionIndex] > 1000)
             {
                 cout << "Potential infinite loop detected. Loop executed more than the current threshold (" << loopExecutionThreshold << "), do you wish do increase the threshold and continue with the execution? (y/n)\n";
-                char anwser;
-                cin >> anwser;
-                if (anwser != 'y')
+                char answer;
+                cin >> answer;
+                if (answer != 'y')
                 {
                     exit(1);
                 }
